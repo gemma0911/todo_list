@@ -2,69 +2,68 @@ package com.example.app.login.todolist
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.TypedValue
-import android.view.LayoutInflater
+import android.os.Vibrator
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
+import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.view.marginBottom
+import com.example.app.login.todolist.R.layout
+import com.example.app.login.todolist.R.layout.task
 import com.example.app.login.todolist.databinding.ActivityMainBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+        setContentView(layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
-
         setContentView(binding.root)
 
-        val text =  TextView(this)
-        text.setText("hehe")
+        val text = TextView(this)
         binding.add.setOnClickListener {
-//            binding.linearLayout2.visibility = View.GONE
-            val dialog = BottomSheetDialog(this)
-            val view = layoutInflater.inflate(R.layout.task,null)
-            dialog.setContentView(view)
-            dialog.show()
-      }
-
-        val myTextView = findViewById<TextView>(R.id.editTextTextPassword)
-        myTextView.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                // The soft keyboard is shown, so reduce the size of the TextView
-                myTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-            } else {
-                // The soft keyboard is hidden, so restore the original size of the TextView
-                myTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
-            }
-        }
-
-    }
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        // Check if the keyboard is hidden or shown in the new configuration
-        if (newConfig.keyboardHidden == Configuration.KEYBOARDHIDDEN_NO) {
-            // The soft keyboard is shown, so reduce the size of the TextView
-            val myTextView = findViewById<TextView>(R.id.textView2)
-            myTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-        } else {
-            // The soft keyboard is hidden, so restore the original size of the TextView
-            val myTextView = findViewById<TextView>(R.id.textView2)
-            myTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+            addTask()
         }
     }
 
+    private fun addTask() {
+//        val vibration: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+//        if (vibration.hasVibrator()) {
+//            vibration.vibrate(20000); // for 500 ms
+//        }
+//        binding.linearLayout2.visibility = View.GONE
+        val dialog = BottomSheetDialog(this,)
+        val view = layoutInflater.inflate(task, null)
+        dialog.setContentView(view)
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        dialog.show()
+    }
+
+    fun click(view: View) {
+        val datePicker = MaterialDatePicker.Builder.datePicker().build()
+        datePicker.show(supportFragmentManager, "DatePicker")
+        datePicker.addOnPositiveButtonClickListener {
+            val dateFormatter = SimpleDateFormat("dd-MM-yyyy")
+            val date = dateFormatter.format(Date(it))
+            Toast.makeText(this, "$date is selected", Toast.LENGTH_LONG).show()
+        }
+        // Setting up the event for when cancelled is clicked
+        datePicker.addOnNegativeButtonClickListener {
+            Toast.makeText(this, "${datePicker.headerText} is cancelled", Toast.LENGTH_LONG)
+                .show()
+        }
+        // Setting up the event for when back button is pressed
+        datePicker.addOnCancelListener {
+            Toast.makeText(this, "Date Picker Cancelled", Toast.LENGTH_LONG).show()
+        }
+    }
 }
